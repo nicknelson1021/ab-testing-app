@@ -314,6 +314,9 @@ if st.session_state.create_data:
     st.markdown("### Data preview")
     st.dataframe(df_grouped)
 
+    csv = df.to_csv().encode('utf-8')
+    st.download_button("Press to Download", csv, "a_b_test_data.csv", "text/csv", key='download-csv')
+
     st.markdown("### Select columns for analysis")
     with st.form(key="my_form"):
         ab = st.multiselect(
