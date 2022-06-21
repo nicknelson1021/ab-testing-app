@@ -315,7 +315,8 @@ if st.session_state.create_data:
     st.dataframe(df_grouped)
 
     csv = df.to_csv(index=False).encode('utf-8')
-    st.download_button("Press to Download", csv, "a_b_test_data.csv", "text/csv", key='download-csv')
+    st.download_button("Download", csv, "a_b_test_data.csv", "text/csv", key='download-csv',
+                       help='This will download the detail data for your test based on the form above.')
 
     st.markdown("### Select columns for analysis")
     with st.form(key="my_form"):
