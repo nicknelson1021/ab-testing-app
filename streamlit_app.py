@@ -274,7 +274,8 @@ test_select = st.radio(
     ('Conversion Rate', 'Conversion Count'))
 
 if test_select == 'Conversion Rate':
-    test_rate = st.number_input('Test Conversion Rate', value=0.56)
+    test_rate = st.number_input('Test Conversion Rate', min_value=0.0, max_value=1.0,
+                                step=1e-4, value=0.56, format="%.4f")
     test_converted = round(test_quantity * test_rate)
 else:
     test_converted = st.number_input('Test Conversions', value=1512)
@@ -285,7 +286,8 @@ control_select = st.radio(
     ('Conversion Rate', 'Conversion Count'))
 
 if control_select == 'Conversion Rate':
-    control_rate = st.number_input('Control Conversion Rate', value=0.615)
+    control_rate = st.number_input('Control Conversion Rate', min_value=0.0, max_value=1.0,
+                                   step=1e-4, value=0.615, format="%.4f")
     control_converted = round(control_quantity * control_rate)
 else:
     control_converted = st.number_input('Control Conversions', value=1665)
