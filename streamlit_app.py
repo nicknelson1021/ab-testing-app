@@ -358,7 +358,7 @@ if st.session_state.create_data:
             st.radio(
                 "Hypothesis type",
                 options=["One-sided", "Two-sided"],
-                index=0,
+                index=1,
                 key="hypothesis",
                 help="TBD",
             )
