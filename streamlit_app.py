@@ -127,9 +127,9 @@ def p_value(z, hypothesis, decide):
     elif hypothesis == "One-sided" and z >= 0:
         return norm().sf(z) / 2
     elif z < 0:
-        return 1 - norm().sf(z)
+        return (1 - norm().sf(z)) * 2
     else:
-        return norm().sf(z)
+        return (norm().sf(z)) * 2
 
 
 def significance(alpha, p):
