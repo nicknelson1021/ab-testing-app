@@ -312,9 +312,6 @@ if st.session_state.create_data:
     result_default = ["converted"]
 
     st.markdown("### Data preview")
-    st.write('DETAIL')
-    st.dataframe(df.head())
-    st.write('SUMMARY')
     st.dataframe(df_grouped)
 
     st.markdown("### Select columns for analysis")
