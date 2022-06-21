@@ -268,29 +268,45 @@ st.write(
 Upload your experiment results to see the significance of your A/B test.
 """
 )
+test_quantity = st.number_input('Test Quantity', value=2700)
+test_select = st.radio(
+    "Select whether to use conversion rate or conversion count for test group.",
+    ('Conversion Rate', 'Conversion Count'))
 
-uploaded_file = st.file_uploader("Upload CSV", type=".csv")
+if test_select == 'Conversion Rate':
+    test_rate = st.number_input('Test Conversion Rate', value=0.56)
+    test_converted = round(test_quantity * test_rate)
+else:
+    test_converted = st.number_input('Test Conversions', value=1512)
 
-use_example_file = st.checkbox(
-    "Use example file", False, help="Use in-built example file to demo the app"
-)
+control_quantity = st.number_input('Control Quantity', value=2707)
+control_select = st.radio(
+    "Select whether to use conversion rate or conversion count for control group.",
+    ('Conversion Rate', 'Conversion Count'))
 
-ab_default = None
-result_default = None
+if control_select == 'Conversion Rate':
+    control_rate = st.number_input('Control Conversion Rate', value=0.615)
+    control_converted = round(control_quantity * control_rate)
+else:
+    control_converted = st.number_input('Control Conversions', value=1665)
 
-# If CSV is not uploaded and checkbox is filled, use values from the example file
-# and pass them down to the next if block
-if use_example_file:
-    uploaded_file = "Website_Results.csv"
-    ab_default = ["variant"]
+create_data = st.button('Submit')
+if create_data:
+    data = [['Test', 1] for i in range(test_converted)] + \
+        [['Test', 0] for i in range(test_quantity - test_converted)] + \
+        [['Control', 1] for i in range(control_converted)] + \
+        [['Control', 0] for i in range(control_quantity - control_converted)]
+    df = pd.DataFrame(data, columns=['test_group', 'converted'])
+    df_grouped = df.groupby(['test_group', 'converted']).agg(records=('test_group', 'count')).reset_index()
+    # st.dataframe(df.head())
+    ab_default = ["test_group"]
     result_default = ["converted"]
 
-
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-
     st.markdown("### Data preview")
+    st.write('DETAIL')
     st.dataframe(df.head())
+    st.write('SUMMARY')
+    st.dataframe(df_grouped)
 
     st.markdown("### Select columns for analysis")
     with st.form(key="my_form"):
@@ -301,12 +317,12 @@ if uploaded_file:
             default=ab_default,
         )
         if ab:
-            control = df[ab[0]].unique()[0]
-            treatment = df[ab[0]].unique()[1]
+            treatment = df[ab[0]].unique()[0]
+            control = df[ab[0]].unique()[1]
             decide = st.radio(
                 f"Is *{treatment}* Group B?",
                 options=["Yes", "No"],
-                help="Select yes if this is group B (or the treatment group) from your test.",
+                help="Select yes if this is group B (or the test group) from your test.",
             )
             if decide == "No":
                 control, treatment = treatment, control
@@ -344,7 +360,8 @@ if uploaded_file:
                 value=0.05,
                 step=0.01,
                 key="alpha",
-                help=" The probability of mistakenly rejecting the null hypothesis, if the null hypothesis is true. This is also called false positive and type I error. ",
+                help=("The probability of mistakenly rejecting the null hypothesis, if the null hypothesis is true."
+                      " This is also called false positive and type I error. ")
             )
 
         submit_button = st.form_submit_button(label="Submit")
@@ -353,12 +370,8 @@ if uploaded_file:
         st.warning("Please select both an **A/B column** and a **Result column**.")
         st.stop()
 
-    # type(uploaded_file) == str, means the example file was used
-    name = (
-        "Website_Results.csv" if isinstance(uploaded_file, str) else uploaded_file.name
-    )
     st.write("")
-    st.write("## Results for A/B test from ", name)
+    st.write("## Results for A/B test")
     st.write("")
 
     # Obtain the metrics to display
@@ -387,7 +400,7 @@ if uploaded_file:
     # Create a single-row, two-column DataFrame to use in bar chart
     results_df = pd.DataFrame(
         {
-            "Group": ["Control", "Treatment"],
+            "Group": ["Control", "Test"],
             "Conversion": [st.session_state.cra, st.session_state.crb],
         }
     )
@@ -405,7 +418,7 @@ if uploaded_file:
             "Total": [visitors_a, visitors_b],
             "% Converted": [st.session_state.cra, st.session_state.crb],
         },
-        index=pd.Index(["Control", "Treatment"]),
+        index=pd.Index(["Control", "Test"]),
     )
 
     # Format "% Converted" column values to 3 decimal places
