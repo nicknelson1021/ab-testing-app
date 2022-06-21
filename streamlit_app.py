@@ -290,7 +290,12 @@ if control_select == 'Conversion Rate':
 else:
     control_converted = st.number_input('Control Conversions', value=1665)
 
-create_data = st.button('Submit')
+if 'create_data' not in st.session_state:
+    create_data = st.button('Submit')
+    st.session_state.create_data = create_data
+else:
+    create_data = st.session_state.create_data
+
 if create_data:
     data = [['Test', 1] for i in range(test_converted)] + \
         [['Test', 0] for i in range(test_quantity - test_converted)] + \
