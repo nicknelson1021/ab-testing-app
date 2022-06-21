@@ -101,7 +101,7 @@ def z_score(cra, crb, error):
     return ((crb - cra) / error) / 100
 
 
-def p_value(z, hypothesis):
+def p_value(z, hypothesis, decide):
     """Returns the p-value, which is the probability of obtaining test
     results at least as extreme as the results actually observed, under
     the assumption that the null hypothesis is correct.
@@ -126,6 +126,8 @@ def p_value(z, hypothesis):
         return 1 - norm().sf(z)
     elif hypothesis == "One-sided" and z >= 0:
         return norm().sf(z) / 2
+    elif z < 0:
+        return 1 - norm().sf(z)
     else:
         return norm().sf(z)
 
@@ -220,7 +222,7 @@ def style_p_value(v, props=""):
 
 
 def calculate_significance(
-    conversions_a, conversions_b, visitors_a, visitors_b, hypothesis, alpha
+    conversions_a, conversions_b, visitors_a, visitors_b, hypothesis, alpha, decide
 ):
     """Calculates all metrics to be displayed including conversion rates,
     uplift, standard errors, z-score, p-value, significance, and stores them
@@ -256,7 +258,7 @@ def calculate_significance(
     st.session_state.z = z_score(
         st.session_state.cra, st.session_state.crb, st.session_state.sed
     )
-    st.session_state.p = p_value(st.session_state.z, st.session_state.hypothesis)
+    st.session_state.p = p_value(st.session_state.z, st.session_state.hypothesis, decide)
     st.session_state.significant = significance(
         st.session_state.alpha, st.session_state.p
     )
@@ -330,9 +332,9 @@ if st.session_state.create_data:
             treatment = df[ab[0]].unique()[0]
             control = df[ab[0]].unique()[1]
             decide = st.radio(
-                f"Is *{treatment}* Group B?",
+                f"Is *{treatment}* the treatment group?",
                 options=["Yes", "No"],
-                help="Select yes if this is group B (or the test group) from your test.",
+                help="Select yes if this is the treatment group (not control) from your test.",
             )
             if decide == "No":
                 control, treatment = treatment, control
@@ -392,6 +394,7 @@ if st.session_state.create_data:
         visitors_b,
         st.session_state.hypothesis,
         st.session_state.alpha,
+        decide,
     )
 
     mcol1, mcol2 = st.columns(2)
