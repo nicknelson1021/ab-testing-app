@@ -290,8 +290,9 @@ if control_select == 'Conversion Rate':
 else:
     control_converted = st.number_input('Control Conversions', value=1665)
 
+create_data = st.button('Submit')
+
 if 'create_data' not in st.session_state:
-    create_data = st.button('Submit')
     st.session_state.create_data = create_data
 else:
     create_data = st.session_state.create_data
